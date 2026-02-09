@@ -1,0 +1,100 @@
+@baseUrl = http://localhost:8000/api
+@token = 1|your_token_here
+
+### Register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "New Manager",
+    "email": "manager3@crm.com",
+    "password": "password",
+    "password_confirmation": "password",
+    "role": "manager"
+}
+
+### Login (Get Token)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "manager@crm.com",
+    "password": "password"
+}
+
+### Get User Info
+GET {{baseUrl}}/user
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### ---------------- TASKS ----------------
+
+### Get All Tasks (Filterable)
+GET {{baseUrl}}/tasks?status=pending&priority=high
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Get Tasks Today
+GET {{baseUrl}}/tasks/today
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Get Overdue Tasks
+GET {{baseUrl}}/tasks/overdue
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Create Task
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "title": "Call new client",
+    "type": "call",
+    "priority": "high",
+    "description": "Discuss project details",
+    "deadline": "2026-02-15T10:00:00",
+    "client_id": 1,
+    "remind_before_minutes": 30,
+    "remind_via": "email",
+    "is_recurring": true,
+    "recurrence_type": "weekly"
+}
+
+### Update Task
+PUT {{baseUrl}}/tasks/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "title": "Call new client (Updated)",
+    "description": "Updated details",
+    "priority": "medium"
+}
+
+### Change Status
+PATCH {{baseUrl}}/tasks/1/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "status": "in_progress"
+}
+
+### Delete Task
+DELETE {{baseUrl}}/tasks/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### ---------------- CLIENTS ----------------
+
+### Get Client Tasks
+GET {{baseUrl}}/clients/1/tasks
+Authorization: Bearer {{token}}
+Accept: application/json
