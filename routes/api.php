@@ -16,9 +16,10 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    Route::apiResource('tasks', TaskController::class);
     Route::get('/tasks/today', [TaskController::class, 'today']);
     Route::get('/tasks/overdue', [TaskController::class, 'overdue']);
     Route::get('/clients/{client}/tasks', [TaskController::class, 'getClientTasks']);
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
+
+    Route::apiResource('tasks', TaskController::class);
 });

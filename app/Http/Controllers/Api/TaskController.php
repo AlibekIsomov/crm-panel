@@ -6,6 +6,7 @@ use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskStatusUpdateRequest;
 use App\Http\Requests\TaskStoreRequest;
+use App\Http\Requests\TaskUpdateRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Client;
 use App\Models\Task;
@@ -16,6 +17,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TaskController extends Controller
 {
+    private const FILTER_FIELDS = ['type', 'priority', 'status', 'client_id'];
+    private const DATE_FILTERS = ['date_from' => '>=', 'date_to' => '<='];
+
     public function __construct(protected TaskService $taskService)
     {
     }
@@ -24,25 +28,8 @@ class TaskController extends Controller
     {
         $query = Task::with(['user', 'client']);
 
-        // Filtering
-        if ($request->has('type')) {
-            $query->where('type', $request->type);
-        }
-        if ($request->has('priority')) {
-            $query->where('priority', $request->priority);
-        }
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->has('client_id')) {
-            $query->where('client_id', $request->client_id);
-        }
-        if ($request->has('date_from')) {
-            $query->whereDate('deadline', '>=', $request->date_from);
-        }
-        if ($request->has('date_to')) {
-            $query->whereDate('deadline', '<=', $request->date_to);
-        }
+        $this->applyFilters($query, $request);
+        $this->applyDateFilters($query, $request);
 
         return TaskResource::collection($query->paginate(15));
     }
@@ -59,8 +46,7 @@ class TaskController extends Controller
     public function overdue(): AnonymousResourceCollection
     {
         $tasks = Task::with(['user', 'client'])
-            ->where('status', '!=', TaskStatus::Done)
-            ->where('status', '!=', TaskStatus::Cancelled)
+            ->whereNotIn('status', [TaskStatus::Done, TaskStatus::Cancelled])
             ->where('deadline', '<', now())
             ->get();
 
@@ -69,9 +55,10 @@ class TaskController extends Controller
 
     public function store(TaskStoreRequest $request): TaskResource
     {
-        $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
-        $data['status'] = TaskStatus::Pending;
+        $data = array_merge($request->validated(), [
+            'user_id' => $request->user()->id,
+            'status' => TaskStatus::Pending,
+        ]);
 
         $task = $this->taskService->create($data);
 
@@ -83,8 +70,6 @@ class TaskController extends Controller
         return new TaskResource($task->load(['user', 'client']));
     }
 
-    use App\Http\Requests\TaskUpdateRequest;
-
     public function update(TaskUpdateRequest $request, Task $task): TaskResource
     {
         $task = $this->taskService->update($task, $request->validated());
@@ -94,8 +79,7 @@ class TaskController extends Controller
 
     public function updateStatus(TaskStatusUpdateRequest $request, Task $task): TaskResource
     {
-        $newStatus = TaskStatus::tryFrom($request->status);
-
+        $newStatus = TaskStatus::from($request->status);
         $task = $this->taskService->changeStatus($task, $newStatus);
 
         return new TaskResource($task->load(['user', 'client']));
@@ -110,8 +94,26 @@ class TaskController extends Controller
 
     public function getClientTasks(Client $client): AnonymousResourceCollection
     {
-        $tasks = $client->tasks()->with(['user'])->paginate(15);
+        return TaskResource::collection(
+            $client->tasks()->with(['user'])->paginate(15)
+        );
+    }
 
-        return TaskResource::collection($tasks);
+    private function applyFilters($query, Request $request): void
+    {
+        foreach (self::FILTER_FIELDS as $field) {
+            if ($request->has($field)) {
+                $query->where($field, $request->input($field));
+            }
+        }
+    }
+
+    private function applyDateFilters($query, Request $request): void
+    {
+        foreach (self::DATE_FILTERS as $param => $operator) {
+            if ($request->has($param)) {
+                $query->whereDate('deadline', $operator, $request->input($param));
+            }
+        }
     }
 }
