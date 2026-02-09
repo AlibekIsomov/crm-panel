@@ -17,6 +17,7 @@ class TaskService
     public function update(Task $task, array $data): Task
     {
         $task->update($data);
+
         return $task;
     }
 
@@ -26,7 +27,7 @@ class TaskService
             return $task;
         }
 
-        if (!$task->status->canTransitionTo($newStatus)) {
+        if (! $task->status->canTransitionTo($newStatus)) {
             throw ValidationException::withMessages([
                 'status' => ["Transition from {$task->status->value} to {$newStatus->value} is not allowed"],
             ]);
@@ -53,7 +54,7 @@ class TaskService
 
     protected function createNextRecurringTask(Task $originalTask): void
     {
-        if (!$originalTask->recurrence_type) {
+        if (! $originalTask->recurrence_type) {
             return;
         }
 
@@ -66,7 +67,7 @@ class TaskService
             'completed_at',
             'created_at',
             'updated_at',
-            'id'
+            'id',
         ])->toArray();
 
         $newTaskData['status'] = TaskStatus::Pending;

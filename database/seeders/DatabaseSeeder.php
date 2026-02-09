@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 class DatabaseSeeder extends Seeder
 {
     private const DEFAULT_PASSWORD = 'password';
+
     private const CLIENT_COUNT = 10;
 
     public function run(): void

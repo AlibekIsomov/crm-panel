@@ -60,16 +60,17 @@ class Task extends Model
 
     public function isOverdue(): bool
     {
-        return !$this->status->isFinal() && $this->deadline->isPast();
+        return ! $this->status->isFinal() && $this->deadline->isPast();
     }
 
     public function needsReminder(): bool
     {
-        if ($this->reminder_sent_at || !$this->remind_before_minutes || $this->status->isFinal()) {
+        if ($this->reminder_sent_at || ! $this->remind_before_minutes || $this->status->isFinal()) {
             return false;
         }
 
         $reminderTime = $this->deadline->subMinutes($this->remind_before_minutes);
+
         return now()->gte($reminderTime);
     }
 }

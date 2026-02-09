@@ -39,7 +39,7 @@ class TaskFactory extends Factory
 
     public function recurring(RecurrenceType $type = RecurrenceType::Weekly): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'is_recurring' => true,
             'recurrence_type' => $type,
         ]);
@@ -47,7 +47,7 @@ class TaskFactory extends Factory
 
     public function withReminder(int $minutes = 30, ReminderChannel $channel = ReminderChannel::Email): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'remind_before_minutes' => $minutes,
             'remind_via' => $channel,
         ]);
@@ -55,7 +55,7 @@ class TaskFactory extends Factory
 
     public function overdue(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'deadline' => fake()->dateTimeBetween('-1 week', '-1 hour'),
             'status' => TaskStatus::Pending,
         ]);
@@ -63,7 +63,7 @@ class TaskFactory extends Factory
 
     public function forToday(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'deadline' => now()->endOfDay(),
         ]);
     }

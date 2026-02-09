@@ -18,11 +18,10 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class TaskController extends Controller
 {
     private const FILTER_FIELDS = ['type', 'priority', 'status', 'client_id'];
+
     private const DATE_FILTERS = ['date_from' => '>=', 'date_to' => '<='];
 
-    public function __construct(protected TaskService $taskService)
-    {
-    }
+    public function __construct(protected TaskService $taskService) {}
 
     public function index(Request $request): AnonymousResourceCollection
     {

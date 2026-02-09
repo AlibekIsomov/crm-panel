@@ -17,6 +17,7 @@ class TaskApiTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
+
         return $user;
     }
 
@@ -80,12 +81,12 @@ class TaskApiTest extends TestCase
         // Task for today
         Task::factory()->for($user)->create([
             'deadline' => now()->startOfHour(),
-            'title' => 'Today Task'
+            'title' => 'Today Task',
         ]);
 
         Task::factory()->for($user)->create([
             'deadline' => now()->addDay(),
-            'title' => 'Tomorrow Task'
+            'title' => 'Tomorrow Task',
         ]);
 
         $response = $this->getJson('/api/tasks/today');
@@ -102,12 +103,12 @@ class TaskApiTest extends TestCase
         Task::factory()->for($user)->create([
             'deadline' => now()->subHour(),
             'status' => TaskStatus::Pending,
-            'title' => 'Late Task'
+            'title' => 'Late Task',
         ]);
 
         Task::factory()->for($user)->create([
             'deadline' => now()->addHour(),
-            'status' => TaskStatus::Pending
+            'status' => TaskStatus::Pending,
         ]);
 
         $response = $this->getJson('/api/tasks/overdue');

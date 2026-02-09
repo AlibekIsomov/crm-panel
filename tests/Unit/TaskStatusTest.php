@@ -13,7 +13,7 @@ class TaskStatusTest extends TestCase
 
         $this->assertTrue($status->canTransitionTo(TaskStatus::InProgress));
         $this->assertTrue($status->canTransitionTo(TaskStatus::Cancelled));
-        $this->assertFalse($status->canTransitionTo(TaskStatus::Done)); 
+        $this->assertFalse($status->canTransitionTo(TaskStatus::Done));
     }
 
     public function test_in_progress_can_transition_to_done_and_cancelled(): void

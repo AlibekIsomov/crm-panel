@@ -1,15 +1,14 @@
 <?php
 
-use App\Enums\TaskStatus;
 use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use App\Enums\TaskType;
-use App\Enums\RecurrenceType;
-use App\Enums\ReminderChannel;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('tasks', function (Blueprint $table) {

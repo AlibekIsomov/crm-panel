@@ -3,14 +3,15 @@
 namespace App\Console\Commands;
 
 use App\Enums\TaskStatus;
-use App\Models\Task;
 use App\Jobs\SendTaskReminderJob;
+use App\Models\Task;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class CheckTaskReminders extends Command
 {
     protected $signature = 'tasks:check-reminders';
+
     protected $description = 'Check for tasks needing reminders and overdue tasks';
 
     public function handle()

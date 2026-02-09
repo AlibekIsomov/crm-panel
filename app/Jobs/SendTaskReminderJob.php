@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\Task;
 use App\Enums\ReminderChannel;
+use App\Models\Task;
 use App\Notifications\TaskReminderNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,9 +16,7 @@ class SendTaskReminderJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(protected Task $task)
-    {
-    }
+    public function __construct(protected Task $task) {}
 
     public function handle(): void
     {
