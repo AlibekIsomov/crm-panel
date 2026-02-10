@@ -1,0 +1,49 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: crm-panel-app
+    container_name: crm-panel-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - crm-panel-network
+
+  web:
+    image: nginx:alpine
+    container_name: crm-panel-web
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - crm-panel-network
+
+  db:
+    image: postgres:15
+    container_name: crm-panel-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - crm-panel-network
+
+networks:
+  crm-panel-network:
+    driver: bridge
+
+volumes:
+  db-data:
