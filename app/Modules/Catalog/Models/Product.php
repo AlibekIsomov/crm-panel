@@ -65,4 +65,25 @@ class Product extends Model
     {
         return $this->hasOne(\App\Modules\Inventory\Models\Stock::class);
     }
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeInCategory($query, $categoryId)
+    {
+        return $query->where('category_id', $categoryId);
+    }   
+
+    public function scopePriceRange($query, $min, $max)
+    {
+        if ($min) {
+            $query->where('price', '>=', $min);
+        }
+        if ($max) {
+            $query->where('price', '<=', $max);
+        }
+        return $query;
+    }
 }
