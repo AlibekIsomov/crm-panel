@@ -3,6 +3,7 @@
 namespace App\Modules\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Catalog\DTOs\CreateCategoryDTO;
 use App\Modules\Catalog\Models\Category;
 use App\Modules\Catalog\Http\Resources\CategoryResource;
 use App\Modules\Catalog\Http\Requests\StoreCategoryRequest;
@@ -21,7 +22,8 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $request): JsonResponse
     {
-        $category = Category::create($request->validated());
+        $dto = CreateCategoryDTO::fromRequest($request);
+        $category = Category::create($dto->toArray());
 
         return response()->json([
             'data' => new CategoryResource($category),

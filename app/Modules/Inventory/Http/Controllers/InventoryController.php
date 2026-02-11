@@ -3,36 +3,31 @@
 namespace App\Modules\Inventory\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Inventory\DTOs\AdjustStockDTO;
 use App\Modules\Inventory\Http\Requests\AdjustStockRequest;
 use App\Modules\Inventory\Http\Resources\StockMovementResource;
 use App\Modules\Inventory\Models\Stock;
-use App\Modules\Inventory\Models\StockMovement;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use App\Modules\Catalog\Models\Product; // Need to find Product to find Stock? Or Stock by Product ID
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Modules\Inventory\Services\InventoryService;
+use Illuminate\Http\JsonResponse;
 
 class InventoryController extends Controller
 {
-
-    protected $inventoryService;
+    protected InventoryService $inventoryService;
 
     public function __construct(InventoryService $inventoryService)
     {
         $this->inventoryService = $inventoryService;
     }
 
-    /**
-     * Adjust stock for a product.
-     */
     public function adjust(AdjustStockRequest $request, $productId): JsonResponse
     {
+        $dto = AdjustStockDTO::fromRequest($request, $productId);
+
         try {
             $stock = $this->inventoryService->adjustStock(
-                $productId,
-                $request->input('quantity_change'),
-                $request->input('reason')
+                $dto->productId,
+                $dto->quantityChange,
+                $dto->reason
             );
 
             return response()->json([
@@ -48,7 +43,6 @@ class InventoryController extends Controller
             ], 422);
         }
     }
-
 
     public function history($productId)
     {

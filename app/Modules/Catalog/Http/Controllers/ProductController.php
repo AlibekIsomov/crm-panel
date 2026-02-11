@@ -3,6 +3,7 @@
 namespace App\Modules\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Catalog\DTOs\CreateProductDTO;
 use App\Modules\Catalog\Http\Requests\StoreProductRequest;
 use App\Modules\Catalog\Http\Resources\ProductResource;
 use App\Modules\Catalog\Models\Product;
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-
     public function index(Request $request)
     {
         $products = Product::with(['category', 'stock'])
@@ -26,17 +26,15 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): JsonResponse
     {
-        return DB::transaction(function () use ($request) {
-            $productData = $request->safe()->except(['attributes']);
-            $product = Product::create($productData);
+        $dto = CreateProductDTO::fromRequest($request);
 
-            if ($request->has('attributes')) {
-                $product->attributes()->createMany($request->validated('attributes'));
+        return DB::transaction(function () use ($dto) {
+            $product = Product::create($dto->toArray());
+
+            if (!empty($dto->attributes)) {
+                $product->attributes()->createMany($dto->attributes);
             }
 
-            // Also initialize stock if needed? Requirements imply stock is separate but maybe init at 0?
-            // Stock table has product_id unique. Without a record, it's effectively 0 or null.
-            // Let's create a default stock record of 0.
             $product->stock()->create(['quantity' => 0, 'reserved_quantity' => 0]);
 
             return response()->json([
@@ -54,7 +52,6 @@ class ProductController extends Controller
 
         return new ProductResource($product);
     }
-
 
     public function update(Request $request, $id)
     {

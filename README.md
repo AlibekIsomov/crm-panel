@@ -1,90 +1,144 @@
-# CRM Панель Задача
+# CRM Panel — Каталог товаров + Склад
 
-Простой API для управления задачами и напоминаниями. Сделано на Laravel 10 (PHP 8.2).
+Микросервис каталога интернет-магазина с двумя модулями: **Catalog** и **Inventory**.
 
-## Что внутри
-- Регистрация и вход (Sanctum)
-- Задачи: создание, обновление, удаление (Soft Delete)
-- Статусы задач (Pending -> In Progress -> Done/Cancelled)
-- Повторяющиеся задачи (при Done создается новая копия)
-- Напоминания: Email (Notification) и SMS (лог в файл)
-- Очереди и Планировщик
+## Стек
 
-## Установка
-
-1. **Клонировать репозиторий**
-   ```bash
-   git clone https://github.com/AlibekIsomov/crm-panel.git
-   cd crm-panel
-   ```
-
-2. **Установить зависимости**
-   ```bash
-   composer install
-   ```
-
-3. **Настроить окружение**
-   Скопируйте `.env.example` в `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   Откройте `.env` и пропишите настройки базы данных (MySQL или PostgreSQL):
-   ```env
-   DB_CONNECTION=pgsql
-   DB_HOST=127.0.0.1
-   DB_PORT=5432
-   DB_DATABASE=crm_panel
-   DB_USERNAME=postgres
-   DB_PASSWORD=r00t
-   ```
-
-4. **Генерация ключа**
-   ```bash
-   php artisan key:generate
-   ```
-
-5. **Миграции и Сиды** (создаст таблицы и тестовые данные)
-   ```bash
-   php artisan migrate --seed
-   ```
-   *Создадутся пользователи:*
-   - Manager: `manager@crm.com` / `password`
-   - Admin: `admin@crm.com` / `password`
+- PHP 8.1+
+- Laravel 10
+- PostgreSQL 15
+- Docker Compose
 
 ## Запуск
 
-1. **Сервер API**
-   ```bash
-   php artisan serve
-   ```
-   API будет доступно по адресу: `http://localhost:8000/api`
+### 1. Клонировать репозиторий
 
-2. **Очереди** (для отправки напоминаний)
-   В отдельном терминале:
-   ```bash
-   php artisan queue:work
-   ```
-
-3. **Планировщик** (для проверки напоминаний каждую минуту)
-   В отдельном терминале:
-   ```bash
-   php artisan schedule:work
-   ```
-
-## Тестирование
-Для запуска тестов (Feature и Unit):
 ```bash
-php artisan test
+git clone https://github.com/AlibekIsomov/crm-panel.git
+cd crm-panel
 ```
 
-## API Документация (Postman)
-Файл коллекции `crm_panel.postman_collection.json` лежит в корне проекта. Импортируйте его в Postman.
+### 2. Установить зависимости
 
-### Основные эндпоинты:
-- `POST /api/auth/register` - Регистрация
-- `POST /api/auth/login` - Вход (получить токен)
-- `GET /api/tasks` - Список задач
-- `POST /api/tasks` - Создать задачу
-- `GET /api/tasks/today` - Задачи на сегодня
-- `GET /api/tasks/overdue` - Просроченные
-- `PATCH /api/tasks/{id}/status` - Сменить статус
+```bash
+composer install
+```
+
+### 3. Настроить окружение
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Убедитесь, что в `.env` указаны корректные параметры БД:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=crm_panel
+DB_USERNAME=postgres
+DB_PASSWORD=r00t
+```
+
+### 4. Запустить Docker
+
+```bash
+docker compose up -d
+```
+
+Это поднимет три контейнера:
+- **app** — PHP-FPM приложение
+- **web** — Nginx (порт 8000)
+- **db** — PostgreSQL 15 (порт 5432)
+
+### 5. Выполнить миграции
+
+```bash
+php artisan migrate
+```
+
+### 6. Запустить сервер (для локальной разработки)
+
+```bash
+php artisan serve
+```
+
+API доступен по адресу: `http://127.0.0.1:8000/api/`
+
+## Тесты
+
+```bash
+php artisan test tests/Feature/Catalog tests/Feature/Inventory tests/Unit/Catalog tests/Unit/Inventory
+```
+
+### Feature-тесты (3):
+1. **Создание товара с атрибутами** — в транзакции, проверка БД
+2. **Фильтрация по категории и цене** — scopes `inCategory()`, `priceRange()`
+3. **Изменение остатка + StockMovement** — проверка записи движения и валидации
+
+### Unit-тесты (2):
+1. **Slug-генерация** — обычный случай + конфликт (инкремент)
+2. **Сервис изменения остатков** — приход, продажа, запрет отрицательного остатка
+
+## Архитектура модулей
+
+```
+app/Modules/
+├── Catalog/
+│   ├── Database/Migrations/
+│   ├── DTOs/
+│   │   ├── CreateProductDTO.php
+│   │   └── CreateCategoryDTO.php
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── CategoryController.php
+│   │   │   └── ProductController.php
+│   │   ├── Requests/
+│   │   │   ├── StoreCategoryRequest.php
+│   │   │   └── StoreProductRequest.php
+│   │   └── Resources/
+│   │       ├── CategoryResource.php
+│   │       ├── ProductResource.php
+│   │       └── ProductAttributeResource.php
+│   ├── Models/
+│   │   ├── Category.php
+│   │   ├── Product.php
+│   │   └── ProductAttribute.php
+│   ├── Services/
+│   └── routes.php
+│
+└── Inventory/
+    ├── Database/Migrations/
+    ├── DTOs/
+    │   └── AdjustStockDTO.php
+    ├── Enums/
+    │   └── StockMovementReason.php
+    ├── Http/
+    │   ├── Controllers/
+    │   │   └── InventoryController.php
+    │   ├── Requests/
+    │   │   └── AdjustStockRequest.php
+    │   └── Resources/
+    │       └── StockMovementResource.php
+    ├── Models/
+    │   ├── Stock.php
+    │   └── StockMovement.php
+    ├── Services/
+    │   └── InventoryService.php
+    └── routes.php
+```
+
+## API Endpoints
+
+| Метод | Эндпоинт | Описание |
+|---|---|---|
+| GET | `/api/categories` | Дерево категорий (до 3 уровней) |
+| POST | `/api/categories` | Создание категории |
+| GET | `/api/products` | Список товаров (пагинация, фильтры) |
+| POST | `/api/products` | Создание товара с атрибутами |
+| GET | `/api/products/{slug}` | Карточка товара |
+| PUT | `/api/products/{id}` | Обновление товара |
+| POST | `/api/inventory/{product_id}/adjust` | Изменение остатка |
+| GET | `/api/inventory/{product_id}/history` | История движений |

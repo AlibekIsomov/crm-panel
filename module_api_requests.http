@@ -1,0 +1,147 @@
+### Каталог товаров + Склад — API Requests
+### Base URL
+@baseUrl = http://127.0.0.1:8000/api
+
+## =============================================
+## CATEGORIES
+## =============================================
+
+### Список категорий (дерево до 3 уровней)
+GET {{baseUrl}}/categories
+Accept: application/json
+
+###
+
+### Создание категории (корневая)
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Одежда",
+    "description": "Каталог одежды"
+}
+
+###
+
+### Создание подкатегории
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Футболки",
+    "description": "Мужские и женские футболки",
+    "parent_id": 1
+}
+
+## =============================================
+## PRODUCTS
+## =============================================
+
+###
+
+### Список товаров (без фильтров)
+GET {{baseUrl}}/products
+Accept: application/json
+
+###
+
+### Список товаров (фильтр по категории)
+GET {{baseUrl}}/products?category_id=1
+Accept: application/json
+
+###
+
+### Список товаров (фильтр по цене)
+GET {{baseUrl}}/products?price_min=100&price_max=500
+Accept: application/json
+
+###
+
+### Список товаров (поиск по имени)
+GET {{baseUrl}}/products?search=футболка
+Accept: application/json
+
+###
+
+### Создание товара с атрибутами
+POST {{baseUrl}}/products
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Футболка Classic",
+    "price": 29900,
+    "sku": "TSH-001",
+    "category_id": 1,
+    "is_published": true,
+    "attributes": [
+        { "name": "цвет", "value": "чёрный" },
+        { "name": "размер", "value": "XL" }
+    ]
+}
+
+###
+
+### Карточка товара (по slug)
+GET {{baseUrl}}/products/futbolka-classic
+Accept: application/json
+
+###
+
+### Обновление товара
+PUT {{baseUrl}}/products/1
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Футболка Classic v2",
+    "price": 34900
+}
+
+## =============================================
+## INVENTORY
+## =============================================
+
+###
+
+### Приход товара на склад
+POST {{baseUrl}}/inventory/1/adjust
+Content-Type: application/json
+Accept: application/json
+
+{
+    "quantity_change": 100,
+    "reason": "receipt"
+}
+
+###
+
+### Продажа (уменьшение остатка)
+POST {{baseUrl}}/inventory/1/adjust
+Content-Type: application/json
+Accept: application/json
+
+{
+    "quantity_change": -5,
+    "reason": "sale"
+}
+
+###
+
+### Ошибка: недостаточно товара (ожидается 422)
+POST {{baseUrl}}/inventory/1/adjust
+Content-Type: application/json
+Accept: application/json
+
+{
+    "quantity_change": -99999,
+    "reason": "sale"
+}
+
+###
+
+### История движений товара
+GET {{baseUrl}}/inventory/1/history
+Accept: application/json
