@@ -21,6 +21,20 @@ class ModuleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadModuleRoutes();
+        $this->loadModuleMigrations();
+    }
+
+    protected function loadModuleMigrations()
+    {
+        $modules = ['Catalog', 'Inventory'];
+
+        foreach ($modules as $module) {
+            $migrationPath = app_path("Modules/{$module}/Database/Migrations");
+
+            if (is_dir($migrationPath)) {
+                $this->loadMigrationsFrom($migrationPath);
+            }
+        }
     }
 
     protected function loadModuleRoutes()

@@ -11,6 +11,11 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\App\Modules\Catalog\Models\ProductFactory::new();
+    }
+
     protected $fillable = [
         'name',
         'slug',
@@ -74,7 +79,7 @@ class Product extends Model
     public function scopeInCategory($query, $categoryId)
     {
         return $query->where('category_id', $categoryId);
-    }   
+    }
 
     public function scopePriceRange($query, $min, $max)
     {

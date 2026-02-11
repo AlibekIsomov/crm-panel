@@ -11,6 +11,11 @@ class Category extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\App\Modules\Catalog\Models\CategoryFactory::new();
+    }
+
     protected $fillable = [
         'name',
         'slug',
