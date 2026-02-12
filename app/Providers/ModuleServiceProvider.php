@@ -26,7 +26,7 @@ class ModuleServiceProvider extends ServiceProvider
 
     protected function loadModuleMigrations()
     {
-        $modules = ['Catalog', 'Inventory'];
+        $modules = ['Catalog', 'Inventory', 'Delivery'];
 
         foreach ($modules as $module) {
             $migrationPath = app_path("Modules/{$module}/Database/Migrations");
@@ -39,7 +39,7 @@ class ModuleServiceProvider extends ServiceProvider
 
     protected function loadModuleRoutes()
     {
-        $modules = ['Catalog', 'Inventory'];
+        $modules = ['Catalog', 'Inventory', 'Delivery'];
 
         foreach ($modules as $module) {
             $routeFile = app_path("Modules/{$module}/routes.php");
