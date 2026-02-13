@@ -12,14 +12,6 @@ class MockNotificationService implements NotificationInterface
     {
         $startTime = microtime(true);
 
-        // Log to file as requested
-        Log::channel('daily')->info("SMS to {$recipient}: {$message}");
-
-        // Also specific file if needed, but daily log is fine for "mock - logging to file" 
-        // unless specific sms.log is strictly required. 
-        // Prompt says: "Mock-SMS: logging in storage/logs/sms.log"
-        // I'll try to append to that file specifically.
-
         $logLine = "[" . date('Y-m-d H:i:s') . "] To: {$recipient} | Message: {$message}" . PHP_EOL;
         file_put_contents(storage_path('logs/sms.log'), $logLine, FILE_APPEND);
 

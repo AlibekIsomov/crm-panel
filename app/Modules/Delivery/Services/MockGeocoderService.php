@@ -12,8 +12,6 @@ class MockGeocoderService implements GeocoderInterface
     {
         $startTime = microtime(true);
 
-        // Mock logic: Random coordinates near Tashkent
-        // Lat: 41.28–41.35, Lng: 69.20–69.35
         $lat = rand(4128000, 4135000) / 100000;
         $lng = rand(6920000, 6935000) / 100000;
 

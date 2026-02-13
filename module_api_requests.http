@@ -145,3 +145,64 @@ Accept: application/json
 ### История движений товара
 GET {{baseUrl}}/inventory/1/history
 Accept: application/json
+
+## =============================================
+## DELIVERY
+## =============================================
+
+### 1. Расчет стоимости
+POST {{baseUrl}}/orders/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "customer_name": "Иванов И.И.",
+    "customer_phone": "+998901234567",
+    "customer_email": "ivanov@mail.com",
+    "origin_address": "Ташкент, ул. Навои 12",
+    "destination_address": "Ташкент, ул. Амира Темура 100"
+}
+
+### 2. Создание заказа
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Accept: application/json
+
+{
+    "customer_name": "Алижон Валиев",
+    "customer_phone": "+998991112233",
+    "customer_email": "ali@mail.com",
+    "origin_address": "Tashkent, Chilonzor 5",
+    "destination_address": "Tashkent, Yunusabad 19"
+}
+
+### 3. Получение информации о заказе (ID должен существовать)
+GET {{baseUrl}}/orders/1
+Accept: application/json
+
+### 4. Инициация оплаты
+POST {{baseUrl}}/orders/1/pay
+Accept: application/json
+
+### 5. Webhook оплаты (Success)
+# X-Signature должен соответствовать HMAC-SHA256(body, secret)
+POST {{baseUrl}}/webhooks/payment
+Content-Type: application/json
+X-Signature: <GENERATED_HMAC_HERE>
+
+{
+  "transaction_id": "txn_abc123",
+  "order_id": 1,
+  "amount": 25000,
+  "status": "success",
+  "timestamp": "2025-02-05T12:00:00Z"
+}
+
+### 6. Смена статуса (из Paid в In Delivery)
+PATCH {{baseUrl}}/orders/1/status
+Content-Type: application/json
+Accept: application/json
+
+{
+    "status": "in_delivery"
+}

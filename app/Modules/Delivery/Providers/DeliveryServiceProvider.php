@@ -19,10 +19,32 @@ class DeliveryServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(GeocoderInterface::class, MockGeocoderService::class);
-        $this->app->bind(RoutingInterface::class, MockRoutingService::class);
-        $this->app->bind(PaymentInterface::class, MockPaymentService::class);
-        $this->app->bind(NotificationInterface::class, MockNotificationService::class);
+        if (config('services.geocoder.driver') === 'mock') {
+            $this->app->bind(GeocoderInterface::class, MockGeocoderService::class);
+        } else {
+            $this->app->bind(GeocoderInterface::class, MockGeocoderService::class);
+        }
+
+        // Routing
+        if (config('services.routing.driver') === 'mock') {
+            $this->app->bind(RoutingInterface::class, MockRoutingService::class);
+        } else {
+            $this->app->bind(RoutingInterface::class, MockRoutingService::class);
+        }
+
+        // Payment
+        if (config('services.payment.driver') === 'mock') {
+            $this->app->bind(PaymentInterface::class, MockPaymentService::class);
+        } else {
+            $this->app->bind(PaymentInterface::class, MockPaymentService::class);
+        }
+
+        // Notification
+        if (config('services.notification.driver') === 'mock') {
+            $this->app->bind(NotificationInterface::class, MockNotificationService::class);
+        } else {
+            $this->app->bind(NotificationInterface::class, MockNotificationService::class);
+        }
     }
 
     /**

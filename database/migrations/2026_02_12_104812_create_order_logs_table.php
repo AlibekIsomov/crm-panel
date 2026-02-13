@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->json('request_body')->nullable();
             $table->json('response_body')->nullable();
             $table->integer('status_code');
-            $table->integer('duration_ms');
+            $table->float('duration_ms');
             $table->timestamps();
         });
     }

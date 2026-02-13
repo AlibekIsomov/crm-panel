@@ -142,3 +142,47 @@ app/Modules/
 | PUT | `/api/products/{id}` | Обновление товара |
 | POST | `/api/inventory/{product_id}/adjust` | Изменение остатка |
 | GET | `/api/inventory/{product_id}/history` | История движений |
+
+## Модуль Delivery (Служба доставки)
+
+### Особенности
+
+- **Геокодинг**: Mock-сервис для получения координат.
+- **Маршрутизация**: Mock-сервис для расчета расстояния и времени (Haversine).
+- **Оплата**: Mock-сервис с поддержкой Webhook и проверкой HMAC-SHA256 подписи.
+- **Уведомления**: Асинхронная отправка SMS и Email через Laravel Queue.
+- **Логирование**: Все внешние запросы сохраняются в `order_logs`.
+
+### Настройка драйверов (.env)
+
+```env
+DELIVERY_GEOCODER_DRIVER=mock
+DELIVERY_ROUTING_DRIVER=mock
+DELIVERY_PAYMENT_DRIVER=mock
+DELIVERY_NOTIFICATION_DRIVER=mock
+```
+
+### Запуск очереди
+
+Для отправки уведомлений необходимо запустить воркер:
+
+```bash
+php artisan queue:work
+```
+
+### API Endpoints
+
+| Метод | Эндпоинт | Описание |
+|---|---|---|
+| POST | `/api/orders` | Создание заказа |
+| POST | `/api/orders/calculate` | Предварительный расчет стоимости |
+| GET | `/api/orders/{id}` | Инфо о заказе |
+| PATCH | `/api/orders/{id}/status` | Смена статуса (admin) |
+| POST | `/api/orders/{id}/pay` | Получение ссылки на оплату |
+| POST | `/api/webhooks/payment` | Webhook оплаты (X-Signature) |
+
+### Тестирование
+
+```bash
+php artisan test tests/Feature/Modules/Delivery tests/Unit/Modules/Delivery
+```
